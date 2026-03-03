@@ -4,11 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supporta BusBot</title>
+    <title>BusBot — Sblocca orari</title>
 
     <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10679317' data-sdk='show_10679317'></script>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
@@ -19,103 +18,212 @@
         }
 
         body {
-            background: #1a1a2e;
+            background: #0f0f1a;
             color: #e0e0e0;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            padding: 24px 20px;
+            gap: 20px;
+        }
+
+        header {
             text-align: center;
-            padding: 24px;
-            gap: 16px;
+            padding-top: 12px;
         }
 
-        .icon {
-            font-size: 52px;
+        header .icon {
+            font-size: 40px;
         }
 
-        h1 {
-            font-size: 1.4rem;
+        header h1 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-top: 8px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Countdown ring */
+        .countdown-wrap {
+            position: relative;
+            width: 110px;
+            height: 110px;
+        }
+
+        .countdown-wrap svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(-90deg);
+        }
+
+        circle.track {
+            fill: none;
+            stroke: #222;
+            stroke-width: 8;
+        }
+
+        circle.fill {
+            fill: none;
+            stroke: #4af;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear, stroke 0.5s;
+        }
+
+        .countdown-num {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
             color: #fff;
         }
 
-        p {
-            font-size: 0.95rem;
-            color: #aaa;
-            max-width: 320px;
-            line-height: 1.5;
-        }
-
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid #333;
-            border-top-color: #4af;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
+        /* Status label */
         #status {
-            color: #4af;
             font-size: 0.9rem;
-            min-height: 20px;
+            color: #4af;
+            text-align: center;
+            min-height: 1.2em;
         }
 
-        .done {
-            color: #0f9 !important;
-            font-size: 1rem !important;
+        /* The Monetag ad zone placeholder */
+        #ad-zone {
+            width: 100%;
+            max-width: 360px;
+            min-height: 100px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+
+        .done-check {
+            font-size: 3rem;
+            animation: pop 0.4s ease;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="icon">📢</div>
-    <h1>Supporta BusBot</h1>
-    <p>Guarda lo spot qui sotto per sbloccare gli orari esatti.<br>Ci vogliono solo pochi secondi!</p>
-    <div class="spinner" id="spinner"></div>
+
+    <header>
+        <div class="icon">🚌</div>
+        <h1>Sblocca gli orari</h1>
+        <p>Aspetta il countdown per sbloccare l'orario esatto</p>
+    </header>
+
+    <div class="countdown-wrap" id="ring-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle class="track" cx="55" cy="55" r="45" />
+            <circle class="fill" id="ring" cx="55" cy="55" r="45" />
+        </svg>
+        <div class="countdown-num" id="num">15</div>
+    </div>
+
     <p id="status">Caricamento annuncio...</p>
+
+    <!-- Monetag ad renders here -->
+    <div id="ad-zone"></div>
 
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
 
-        function tryShowAd(attempts) {
+        const TOTAL = 15; // secondi di attesa
+        let remaining = TOTAL;
+        let timerStarted = false;
+        const ring = document.getElementById('ring');
+        const numEl = document.getElementById('num');
+        const status = document.getElementById('status');
+        const ringWrap = document.getElementById('ring-wrap');
+        const circumference = 2 * Math.PI * 45; // ≈ 282.7
+
+        ring.style.strokeDasharray = circumference;
+        ring.style.strokeDashoffset = 0;
+
+        function startCountdown() {
+            if (timerStarted) return;
+            timerStarted = true;
+            status.textContent = 'Guarda lo spot e aspetta…';
+
+            const interval = setInterval(() => {
+                remaining--;
+                numEl.textContent = remaining;
+
+                const progress = remaining / TOTAL;
+                ring.style.strokeDashoffset = circumference * (1 - progress);
+                if (progress < 0.33) ring.style.stroke = '#f84';
+                else if (progress < 0.66) ring.style.stroke = '#fa4';
+
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    unlock();
+                }
+            }, 1000);
+        }
+
+        function unlock() {
+            ringWrap.innerHTML = '<div class="done-check">✅</div>';
+            status.textContent = 'Orari sbloccati! Torna su Telegram.';
+            try { Telegram.WebApp.sendData('ad_reward'); } catch (_) { }
+            setTimeout(() => Telegram.WebApp.close(), 1200);
+        }
+
+        // Avvia Monetag In-app Interstitial + countdown
+        function initAd(attempts) {
             if (typeof show_10679317 === 'function') {
-                document.getElementById('status').textContent = 'Annuncio pronto!';
-                show_10679317()   // Rewarded Interstitial (nessun argomento = interstitial)
-                    .then(() => {
-                        // Utente ha visto il banner — sblocca gli orari
-                        document.getElementById('spinner').style.display = 'none';
-                        const s = document.getElementById('status');
-                        s.textContent = '✅ Grazie! Orari sbloccati — torna su Telegram.';
-                        s.className = 'done';
-                        // Invia reward al bot via Telegram (funziona solo con KeyboardButton web_app)
-                        try { Telegram.WebApp.sendData('ad_reward'); } catch (_) { }
-                        setTimeout(() => Telegram.WebApp.close(), 1500);
-                    })
-                    .catch((e) => {
-                        document.getElementById('spinner').style.display = 'none';
-                        document.getElementById('status').textContent = '⚠️ Annuncio non disponibile al momento.';
-                        setTimeout(() => Telegram.WebApp.close(), 2000);
-                        console.error('Monetag error:', e);
-                    });
+                status.textContent = 'Annuncio pronto!';
+                // In-app Interstitial: mostra banner inline, no redirect
+                show_10679317({
+                    type: 'inApp',
+                    inAppSettings: {
+                        frequency: 1,   // mostra 1 annuncio
+                        capping: 1,     // per 1 ora
+                        interval: 0,
+                        timeout: 1,     // appare dopo 1 secondo
+                        everyPage: false
+                    }
+                });
+                // Avvia il countdown indipendentemente dall'ad
+                setTimeout(startCountdown, 1500);
             } else if (attempts > 0) {
-                setTimeout(() => tryShowAd(attempts - 1), 300);
+                setTimeout(() => initAd(attempts - 1), 300);
             } else {
-                document.getElementById('status').textContent = '⚠️ SDK non caricato. Riprova.';
-                document.getElementById('spinner').style.display = 'none';
+                // SDK non caricato: avvia solo il countdown
+                status.textContent = 'Aspetta il countdown…';
+                startCountdown();
             }
         }
 
-        window.addEventListener('load', () => tryShowAd(15));
+        window.addEventListener('load', () => initAd(15));
     </script>
 </body>
 
