@@ -6,9 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BusBot — Sblocca orari</title>
 
-    <!-- Monetag SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='10679317' data-sdk='show_10679317'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!--
+    ═══════════════════════════════════════════════
+    STEP 1 — Incolla qui il tag <script> di Adsterra
+    Lo trovi su: publishers.adsterra.com
+    Zone → Smart Banner / Banner 300x250 → Get code
+    ═══════════════════════════════════════════════
+    -->
+    <!-- Adsterra Popunder (fallback per traffico web normale) -->
+    <script src="https://pl28838748.effectivegatecpm.com/0b/e5/0b/0be50b39b05d9a9d3296ec7ad8a9863b.js"></script>
 
     <style>
         * {
@@ -25,36 +33,59 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 24px 20px;
-            gap: 20px;
+            padding: 20px 16px 32px;
+            gap: 18px;
         }
 
+        /* ── Header ────────────────────────────────── */
         header {
             text-align: center;
-            padding-top: 12px;
         }
 
         header .icon {
-            font-size: 40px;
+            font-size: 36px;
         }
 
         header h1 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
             color: #fff;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         header p {
-            font-size: 0.85rem;
-            color: #888;
-            margin-top: 4px;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
         }
 
-        /* Countdown ring */
+        /* ── Ad banner slot ────────────────────────── */
+        .ad-slot {
+            width: 100%;
+            max-width: 360px;
+            min-height: 60px;
+            background: #161625;
+            border: 1px solid #2a2a40;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #444;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        .ad-slot-tall {
+            min-height: 250px;
+        }
+
+        /* ── Countdown ring ────────────────────────── */
         .countdown-wrap {
             position: relative;
-            width: 110px;
-            height: 110px;
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
         }
 
         .countdown-wrap svg {
@@ -66,18 +97,18 @@
 
         circle.track {
             fill: none;
-            stroke: #222;
+            stroke: #1e1e30;
             stroke-width: 8;
         }
 
         circle.fill {
             fill: none;
-            stroke: #4af;
+            stroke: #4da6ff;
             stroke-width: 8;
             stroke-linecap: round;
             stroke-dasharray: 283;
             stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear, stroke 0.5s;
+            transition: stroke-dashoffset 1s linear, stroke 0.4s;
         }
 
         .countdown-num {
@@ -86,29 +117,37 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #fff;
         }
 
-        /* Status label */
-        #status {
-            font-size: 0.9rem;
-            color: #4af;
-            text-align: center;
-            min-height: 1.2em;
-        }
-
-        /* The Monetag ad zone placeholder */
-        #ad-zone {
+        /* ── Row: ring + label ─────────────────────── */
+        .timer-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
             width: 100%;
             max-width: 360px;
-            min-height: 100px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #1a1a2e;
         }
 
+        .timer-label {
+            flex: 1;
+        }
+
+        .timer-label strong {
+            display: block;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        #status {
+            font-size: 0.8rem;
+            color: #4da6ff;
+            margin-top: 4px;
+        }
+
+        /* ── Done state ────────────────────────────── */
         .done-check {
             font-size: 3rem;
             animation: pop 0.4s ease;
@@ -116,12 +155,12 @@
 
         @keyframes pop {
             0% {
-                transform: scale(0.5);
+                transform: scale(0.4);
                 opacity: 0;
             }
 
             70% {
-                transform: scale(1.2);
+                transform: scale(1.15);
             }
 
             100% {
@@ -137,93 +176,83 @@
     <header>
         <div class="icon">🚌</div>
         <h1>Sblocca gli orari</h1>
-        <p>Aspetta il countdown per sbloccare l'orario esatto</p>
+        <p>Guarda l'annuncio per sbloccare il tuo orario</p>
     </header>
 
-    <div class="countdown-wrap" id="ring-wrap">
-        <svg width="110" height="110" viewBox="0 0 110 110">
-            <circle class="track" cx="55" cy="55" r="45" />
-            <circle class="fill" id="ring" cx="55" cy="55" r="45" />
-        </svg>
-        <div class="countdown-num" id="num">15</div>
+    <!-- Adsterra Native Banner (top) -->
+    <div class="ad-slot" id="banner-top">
+        <script async="async" data-cfasync="false"
+            src="https://pl28838773.effectivegatecpm.com/af06821f57a4e1f9cc22dd5f68aa7eab/invoke.js"></script>
+        <div id="container-af06821f57a4e1f9cc22dd5f68aa7eab"></div>
     </div>
 
-    <p id="status">Caricamento annuncio...</p>
+    <!-- Countdown -->
+    <div class="timer-row">
+        <div class="countdown-wrap" id="ring-wrap">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle class="track" cx="50" cy="50" r="45" />
+                <circle class="fill" cx="50" cy="50" r="45" id="ring" />
+            </svg>
+            <div class="countdown-num" id="num">15</div>
+        </div>
+        <div class="timer-label">
+            <strong>Attendi 15 secondi</strong>
+            <div id="status">Caricamento annuncio…</div>
+        </div>
+    </div>
 
-    <!-- Monetag ad renders here -->
-    <div id="ad-zone"></div>
+    <!-- Adsterra Banner 300x250 (centrale) -->
+    <div class="ad-slot ad-slot-tall" id="banner-main">
+        <script>
+            atOptions = {
+                'key': '953b3820f45b8c35b6e19403dc28ad24',
+                'format': 'iframe',
+                'height': 250,
+                'width': 300,
+                'params': {}
+            };
+        </script>
+        <script src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
+    </div>
 
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
 
-        const TOTAL = 15; // secondi di attesa
+        const TOTAL = 15;
         let remaining = TOTAL;
-        let timerStarted = false;
         const ring = document.getElementById('ring');
         const numEl = document.getElementById('num');
         const status = document.getElementById('status');
         const ringWrap = document.getElementById('ring-wrap');
-        const circumference = 2 * Math.PI * 45; // ≈ 282.7
+        const C = 2 * Math.PI * 45; // ≈ 282.7
 
-        ring.style.strokeDasharray = circumference;
+        ring.style.strokeDasharray = C;
         ring.style.strokeDashoffset = 0;
 
-        function startCountdown() {
-            if (timerStarted) return;
-            timerStarted = true;
-            status.textContent = 'Guarda lo spot e aspetta…';
+        status.textContent = 'Aspetta il countdown…';
 
-            const interval = setInterval(() => {
-                remaining--;
-                numEl.textContent = remaining;
+        const interval = setInterval(() => {
+            remaining--;
+            numEl.textContent = remaining;
 
-                const progress = remaining / TOTAL;
-                ring.style.strokeDashoffset = circumference * (1 - progress);
-                if (progress < 0.33) ring.style.stroke = '#f84';
-                else if (progress < 0.66) ring.style.stroke = '#fa4';
+            const pct = remaining / TOTAL;
+            ring.style.strokeDashoffset = C * (1 - pct);
+            if (pct < 0.33) ring.style.stroke = '#f84';
+            else if (pct < 0.66) ring.style.stroke = '#fa4';
 
-                if (remaining <= 0) {
-                    clearInterval(interval);
-                    unlock();
-                }
-            }, 1000);
-        }
+            if (remaining <= 0) {
+                clearInterval(interval);
+                unlock();
+            }
+        }, 1000);
 
         function unlock() {
             ringWrap.innerHTML = '<div class="done-check">✅</div>';
-            status.textContent = 'Orari sbloccati! Torna su Telegram.';
+            status.textContent = 'Orari sbloccati!';
             try { Telegram.WebApp.sendData('ad_reward'); } catch (_) { }
-            setTimeout(() => Telegram.WebApp.close(), 1200);
+            setTimeout(() => { try { Telegram.WebApp.close(); } catch (_) { } }, 1000);
         }
-
-        // Avvia Monetag In-app Interstitial + countdown
-        function initAd(attempts) {
-            if (typeof show_10679317 === 'function') {
-                status.textContent = 'Annuncio pronto!';
-                // In-app Interstitial: mostra banner inline, no redirect
-                show_10679317({
-                    type: 'inApp',
-                    inAppSettings: {
-                        frequency: 1,   // mostra 1 annuncio
-                        capping: 1,     // per 1 ora
-                        interval: 0,
-                        timeout: 1,     // appare dopo 1 secondo
-                        everyPage: false
-                    }
-                });
-                // Avvia il countdown indipendentemente dall'ad
-                setTimeout(startCountdown, 1500);
-            } else if (attempts > 0) {
-                setTimeout(() => initAd(attempts - 1), 300);
-            } else {
-                // SDK non caricato: avvia solo il countdown
-                status.textContent = 'Aspetta il countdown…';
-                startCountdown();
-            }
-        }
-
-        window.addEventListener('load', () => initAd(15));
     </script>
 </body>
 
