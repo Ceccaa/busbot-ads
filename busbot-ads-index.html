@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supporta BusBot</title>
+
+    <!-- Monetag SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10679317' data-sdk='show_10679317'></script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 24px;
+            gap: 16px;
+        }
+
+        .icon {
+            font-size: 52px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            color: #fff;
+        }
+
+        p {
+            font-size: 0.95rem;
+            color: #aaa;
+            max-width: 320px;
+            line-height: 1.5;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #333;
+            border-top-color: #4af;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #status {
+            color: #4af;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+
+        .done {
+            color: #0f9 !important;
+            font-size: 1rem !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="icon">📢</div>
+    <h1>Supporta BusBot</h1>
+    <p>Guarda lo spot qui sotto per sbloccare gli orari esatti.<br>Ci vogliono solo pochi secondi!</p>
+    <div class="spinner" id="spinner"></div>
+    <p id="status">Caricamento annuncio...</p>
+
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        function tryShowAd(attempts) {
+            if (typeof show_10679317 === 'function') {
+                document.getElementById('status').textContent = 'Annuncio pronto!';
+                show_10679317()   // Rewarded Interstitial (nessun argomento = interstitial)
+                    .then(() => {
+                        // Utente ha visto il banner — sblocca gli orari
+                        document.getElementById('spinner').style.display = 'none';
+                        const s = document.getElementById('status');
+                        s.textContent = '✅ Grazie! Orari sbloccati — torna su Telegram.';
+                        s.className = 'done';
+                        // Invia reward al bot via Telegram (funziona solo con KeyboardButton web_app)
+                        try { Telegram.WebApp.sendData('ad_reward'); } catch (_) { }
+                        setTimeout(() => Telegram.WebApp.close(), 1500);
+                    })
+                    .catch((e) => {
+                        document.getElementById('spinner').style.display = 'none';
+                        document.getElementById('status').textContent = '⚠️ Annuncio non disponibile al momento.';
+                        setTimeout(() => Telegram.WebApp.close(), 2000);
+                        console.error('Monetag error:', e);
+                    });
+            } else if (attempts > 0) {
+                setTimeout(() => tryShowAd(attempts - 1), 300);
+            } else {
+                document.getElementById('status').textContent = '⚠️ SDK non caricato. Riprova.';
+                document.getElementById('spinner').style.display = 'none';
+            }
+        }
+
+        window.addEventListener('load', () => tryShowAd(15));
+    </script>
+</body>
+
+</html>
