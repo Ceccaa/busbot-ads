@@ -3,89 +3,149 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BusBot — Sblocca orari</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!--
-    ═══════════════════════════════════════════════
-    STEP 1 — Incolla qui il tag <script> di Adsterra
-    Lo trovi su: publishers.adsterra.com
-    Zone → Smart Banner / Banner 300x250 → Get code
-    ═══════════════════════════════════════════════
-    -->
-    <!-- Adsterra Popunder (fallback per traffico web normale) -->
-    <script src="https://pl28838748.effectivegatecpm.com/0b/e5/0b/0be50b39b05d9a9d3296ec7ad8a9863b.js"></script>
-
     <style>
+        :root {
+            --bg-color: #0b0c10;
+            --primary: #4da6ff;
+            --primary-glow: rgba(77, 166, 255, 0.4);
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #8b92a5;
+            --success: #00e676;
+            --success-glow: rgba(0, 230, 118, 0.4);
+            --warning: #ff9100;
+            --danger: #ff5252;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         body {
-            background: #0f0f1a;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(77, 166, 255, 0.06), transparent 30%),
+                radial-gradient(circle at 85% 30%, rgba(138, 43, 226, 0.06), transparent 30%);
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 16px 32px;
-            gap: 18px;
+            padding: 24px 16px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* ── Header ────────────────────────────────── */
         header {
             text-align: center;
+            margin-bottom: 24px;
+            animation: fadeInDown 0.6s ease-out;
         }
 
-        header .icon {
-            font-size: 36px;
+        header .icon-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 20px;
+            font-size: 32px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         header h1 {
-            font-size: 1.1rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #fff;
-            margin-top: 6px;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #b3b9c5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         header p {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 3px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            max-width: 280px;
+            margin: 0 auto;
+            line-height: 1.4;
         }
 
-        /* ── Ad banner slot ────────────────────────── */
-        .ad-slot {
+        /* Container that holds the timer and multiple ad banners */
+        .content-container {
             width: 100%;
-            max-width: 360px;
-            min-height: 60px;
-            background: #161625;
-            border: 1px solid #2a2a40;
-            border-radius: 10px;
+            max-width: 650px;
             display: flex;
+            flex-direction: column;
+            gap: 24px;
             align-items: center;
-            justify-content: center;
+            animation: fadeIn 0.8s ease-out;
+            z-index: 1;
+            padding-bottom: 40px;
+        }
+
+        /* ── Timer Section (Glassmorphism Card) ─────────────────────── */
+        .timer-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative;
             overflow: hidden;
-            color: #444;
-            font-size: 0.7rem;
-            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            /* Extra space before banners */
         }
 
-        .ad-slot-tall {
-            min-height: 250px;
+        /* Timer Card internal glowing background */
+        .timer-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, var(--primary-glow), transparent 60%);
+            opacity: 0.1;
+            animation: pulseBg 4s infinite alternate ease-in-out;
+            pointer-events: none;
         }
 
-        /* ── Countdown ring ────────────────────────── */
         .countdown-wrap {
             position: relative;
-            width: 100px;
-            height: 100px;
+            width: 130px;
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             flex-shrink: 0;
+            filter: drop-shadow(0 0 16px rgba(77, 166, 255, 0.25));
+            transition: filter 0.4s ease;
         }
 
         .countdown-wrap svg {
@@ -93,22 +153,26 @@
             top: 0;
             left: 0;
             transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+            overflow: visible;
         }
 
         circle.track {
             fill: none;
-            stroke: #1e1e30;
-            stroke-width: 8;
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 6;
         }
 
         circle.fill {
             fill: none;
-            stroke: #4da6ff;
-            stroke-width: 8;
+            stroke: var(--primary);
+            stroke-width: 6;
             stroke-linecap: round;
-            stroke-dasharray: 283;
+            stroke-dasharray: 345.5;
+            /* Ricalcolato nel JS */
             stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear, stroke 0.4s;
+            transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
         }
 
         .countdown-num {
@@ -117,55 +181,245 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 2.5rem;
             font-weight: 700;
             color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            font-variant-numeric: tabular-nums;
         }
 
-        /* ── Row: ring + label ─────────────────────── */
-        .timer-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            width: 100%;
-            max-width: 360px;
+        .timer-texts {
+            text-align: center;
+            z-index: 1;
+            /* Sopra il background glowing */
         }
 
-        .timer-label {
-            flex: 1;
-        }
-
-        .timer-label strong {
+        .timer-texts strong {
             display: block;
-            font-size: 0.95rem;
+            font-size: 1.15rem;
             color: #fff;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         #status {
-            font-size: 0.8rem;
-            color: #4da6ff;
-            margin-top: 4px;
+            font-size: 0.95rem;
+            color: var(--primary);
+            font-weight: 500;
+            transition: color 0.4s ease;
         }
 
-        /* ── Done state ────────────────────────────── */
-        .done-check {
-            font-size: 3rem;
-            animation: pop 0.4s ease;
+        /* ── Banners ────────────────────────── */
+        .ad-slot {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        @keyframes pop {
-            0% {
-                transform: scale(0.4);
+        .ad-slot:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .ad-slot::before {
+            content: 'Pubblicità (supportaci)';
+            position: absolute;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: -1;
+            text-align: center;
+            width: 100%;
+        }
+
+        .ad-slot-native {
+            min-height: 60px;
+            max-width: 100%;
+        }
+
+        .ad-slot-square {
+            min-height: 250px;
+            max-width: 300px;
+        }
+
+        .banners-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* ── Fullscreen Success Overlay ────────────────────────────── */
+        #success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 12, 16, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #success-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 230, 118, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: var(--success);
+            box-shadow: 0 0 40px var(--success-glow);
+            margin-bottom: 24px;
+            transform: scale(0.5);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease;
+        }
+
+        #success-overlay.active .success-icon {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .success-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            text-align: center;
+            padding: 0 20px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.5s ease 0.2s, opacity 0.5s ease 0.2s;
+        }
+
+        .success-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 0 20px;
+            max-width: 320px;
+            line-height: 1.5;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.5s ease 0.3s, opacity 0.5s ease 0.3s;
+        }
+
+        #success-overlay.active .success-title,
+        #success-overlay.active .success-subtitle {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ── Animations ────────────────────────────── */
+        @keyframes fadeInDown {
+            from {
                 opacity: 0;
+                transform: translateY(-20px);
             }
 
-            70% {
-                transform: scale(1.15);
-            }
-
-            100% {
-                transform: scale(1);
+            to {
                 opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulseBg {
+            from {
+                transform: scale(1);
+                opacity: 0.05;
+            }
+
+            to {
+                transform: scale(1.15);
+                opacity: 0.15;
+            }
+        }
+
+        /* Responsive Breakpoints */
+        @media (min-width: 600px) {
+            .content-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: flex-start;
+            }
+
+            .timer-card {
+                flex: 1 1 100%;
+                /* Usa tutta la larghezza in alto */
+                flex-direction: row;
+                justify-content: center;
+                max-width: 550px;
+                margin: 0 auto 20px;
+                padding: 30px 40px;
+                gap: 40px;
+            }
+
+            .timer-texts {
+                text-align: left;
+            }
+
+            .countdown-wrap {
+                width: 140px;
+                height: 140px;
+            }
+
+            .banners-grid {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                gap: 24px;
+            }
+
+            .ad-slot-native {
+                flex: 1 1 100%;
+            }
+
+            .ad-slot-square {
+                flex: 0 0 auto;
             }
         }
     </style>
@@ -174,45 +428,73 @@
 <body>
 
     <header>
-        <div class="icon">🚌</div>
+        <div class="icon-wrapper">🚌</div>
         <h1>Sblocca gli orari</h1>
-        <p>Guarda l'annuncio per sbloccare il tuo orario</p>
+        <p>Attendi il completamento per sbloccare l'orario richiesto</p>
     </header>
 
-    <!-- Adsterra Native Banner (top) -->
-    <div class="ad-slot" id="banner-top">
-        <script async="async" data-cfasync="false"
-            src="https://pl28838773.effectivegatecpm.com/af06821f57a4e1f9cc22dd5f68aa7eab/invoke.js"></script>
-        <div id="container-af06821f57a4e1f9cc22dd5f68aa7eab"></div>
+    <div class="content-container">
+
+        <!-- Timer Card -->
+        <div class="timer-card">
+            <div class="countdown-wrap">
+                <svg width="100%" height="100%" viewBox="0 0 150 150">
+                    <circle class="track" cx="75" cy="75" r="65" />
+                    <circle class="fill" cx="75" cy="75" r="65" id="ring" />
+                </svg>
+                <div class="countdown-num" id="num">15</div>
+            </div>
+            <div class="timer-texts">
+                <strong>Attendi <span id="sec-text">15</span> secondi</strong>
+                <div id="status">Caricamento in corso...</div>
+            </div>
+        </div>
+
+        <div class="banners-grid">
+            <!-- Adsterra Native Banner (top) -->
+            <div class="ad-slot ad-slot-native" id="banner-top">
+                <script async="async" data-cfasync="false"
+                    src="https://pl28838773.effectivegatecpm.com/af06821f57a4e1f9cc22dd5f68aa7eab/invoke.js"></script>
+                <div id="container-af06821f57a4e1f9cc22dd5f68aa7eab"></div>
+            </div>
+
+            <!-- Adsterra Banner 300x250 (1) -->
+            <div class="ad-slot ad-slot-square">
+                <script>
+                    atOptions = {
+                        'key': '953b3820f45b8c35b6e19403dc28ad24',
+                        'format': 'iframe',
+                        'height': 250,
+                        'width': 300,
+                        'params': {}
+                    };
+                </script>
+                <script src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
+            </div>
+
+            <!-- Adsterra Banner 300x250 (2) -->
+            <div class="ad-slot ad-slot-square">
+                <script>
+                    atOptions = {
+                        'key': '953b3820f45b8c35b6e19403dc28ad24',
+                        'format': 'iframe',
+                        'height': 250,
+                        'width': 300,
+                        'params': {}
+                    };
+                </script>
+                <script src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Countdown -->
-    <div class="timer-row">
-        <div class="countdown-wrap" id="ring-wrap">
-            <svg width="100" height="100" viewBox="0 0 100 100">
-                <circle class="track" cx="50" cy="50" r="45" />
-                <circle class="fill" cx="50" cy="50" r="45" id="ring" />
-            </svg>
-            <div class="countdown-num" id="num">15</div>
-        </div>
-        <div class="timer-label">
-            <strong>Attendi 15 secondi</strong>
-            <div id="status">Caricamento annuncio…</div>
-        </div>
-    </div>
-
-    <!-- Adsterra Banner 300x250 (centrale) -->
-    <div class="ad-slot ad-slot-tall" id="banner-main">
-        <script>
-            atOptions = {
-                'key': '953b3820f45b8c35b6e19403dc28ad24',
-                'format': 'iframe',
-                'height': 250,
-                'width': 300,
-                'params': {}
-            };
-        </script>
-        <script src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
+    <!-- Fullscreen Overlay for Success -->
+    <div id="success-overlay">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Orari Sbloccati!</div>
+        <div class="success-subtitle">Puoi ora tornare su Telegram per visualizzare gli orari del tuo bus. Chiusura in
+            corso...</div>
     </div>
 
     <script>
@@ -221,25 +503,39 @@
 
         const TOTAL = 15;
         let remaining = TOTAL;
+
         const ring = document.getElementById('ring');
         const numEl = document.getElementById('num');
+        const secText = document.getElementById('sec-text');
         const status = document.getElementById('status');
-        const ringWrap = document.getElementById('ring-wrap');
-        const C = 2 * Math.PI * 45; // ≈ 282.7
+        const overlay = document.getElementById('success-overlay');
+        const countdownWrap = document.querySelector('.countdown-wrap');
+
+        // Calcolo della circonferenza in base al raggio nell'SVG (r="65")
+        const r = 65;
+        const C = 2 * Math.PI * r;
 
         ring.style.strokeDasharray = C;
         ring.style.strokeDashoffset = 0;
 
-        status.textContent = 'Aspetta il countdown…';
-
         const interval = setInterval(() => {
             remaining--;
             numEl.textContent = remaining;
+            secText.textContent = remaining;
 
             const pct = remaining / TOTAL;
             ring.style.strokeDashoffset = C * (1 - pct);
-            if (pct < 0.33) ring.style.stroke = '#f84';
-            else if (pct < 0.66) ring.style.stroke = '#fa4';
+
+            // Colori di transizione timer (gradienti simulati)
+            if (pct <= 0.33) {
+                ring.style.stroke = 'var(--danger)';
+                status.style.color = 'var(--danger)';
+                countdownWrap.style.filter = 'drop-shadow(0 0 16px rgba(255, 82, 82, 0.4))';
+            } else if (pct <= 0.66) {
+                ring.style.stroke = 'var(--warning)';
+                status.style.color = 'var(--warning)';
+                countdownWrap.style.filter = 'drop-shadow(0 0 16px rgba(255, 145, 0, 0.4))';
+            }
 
             if (remaining <= 0) {
                 clearInterval(interval);
@@ -248,10 +544,27 @@
         }, 1000);
 
         function unlock() {
-            ringWrap.innerHTML = '<div class="done-check">✅</div>';
-            status.textContent = 'Orari sbloccati!';
-            try { Telegram.WebApp.sendData('ad_reward'); } catch (_) { }
-            setTimeout(() => { try { Telegram.WebApp.close(); } catch (_) { } }, 1000);
+            // Blocca la scrollbar per evitare bypass (pointer-events bloccato dall'overlay)
+            document.body.style.overflow = 'hidden';
+
+            // Mostra l'overlay del successo
+            overlay.classList.add('active');
+
+            // Notifica Telegram WebApp
+            try {
+                Telegram.WebApp.sendData('ad_reward');
+            } catch (e) {
+                console.log('Error sending ad_reward payload via inline', e);
+            }
+
+            // Attende un paio di secondi per mostrare l'animazione dell'overlay completo
+            setTimeout(() => {
+                try {
+                    Telegram.WebApp.close();
+                } catch (e) {
+                    window.close(); // Fallback se non è nell'ambiente Telegram
+                }
+            }, 1800);
         }
     </script>
 </body>
