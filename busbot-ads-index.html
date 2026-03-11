@@ -8,7 +8,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <!-- CSP: blocca navigazione verso domini non autorizzati -->
@@ -23,166 +23,215 @@
 
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --primary: #4da6ff;
-            --primary-glow: rgba(77, 166, 255, 0.4);
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-border: rgba(255, 255, 255, 0.08);
-            --text-main: #ffffff;
-            --text-muted: #8b92a5;
-            --success: #00e676;
-            --success-glow: rgba(0, 230, 118, 0.4);
-            --warning: #ff9100;
-            --danger: #ff5252;
+            --bg: #07080d;
+            --primary: #6c9fff;
+            --primary-deep: #3d7aed;
+            --primary-glow: rgba(108, 159, 255, 0.35);
+            --accent: #a78bfa;
+            --accent-glow: rgba(167, 139, 250, 0.25);
+            --surface: rgba(255, 255, 255, 0.035);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.07);
+            --border-hover: rgba(255, 255, 255, 0.14);
+            --text: #f0f2f5;
+            --text-muted: #7b8494;
+            --success: #34d399;
+            --success-glow: rgba(52, 211, 153, 0.45);
+            --warning: #fbbf24;
+            --danger: #f87171;
         }
 
-        * {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            background-color: var(--bg-color);
-            background-image:
-                radial-gradient(circle at 15% 50%, rgba(77, 166, 255, 0.06), transparent 30%),
-                radial-gradient(circle at 85% 30%, rgba(138, 43, 226, 0.06), transparent 30%);
-            color: var(--text-main);
-            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 24px 16px;
+            padding: 20px 14px 60px;
             overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
             position: relative;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-            animation: fadeInDown 0.6s ease-out;
+        /* ── Ambient Background ────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -40%;
+            left: -20%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(108, 159, 255, 0.07) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatA 20s ease-in-out infinite alternate;
         }
 
-        header .icon-wrapper {
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -30%;
+            right: -20%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.06) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatB 18s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatA {
+            to {
+                transform: translate(15%, 20%);
+            }
+        }
+
+        @keyframes floatB {
+            to {
+                transform: translate(-15%, -15%);
+            }
+        }
+
+        /* ── Header ────────────────────── */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 1;
+            animation: slideDown 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .brand {
             display: inline-flex;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary-deep), var(--accent));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            width: 64px;
-            height: 64px;
-            background: var(--surface);
-            border: 1px solid var(--surface-border);
-            border-radius: 20px;
-            font-size: 32px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            font-size: 22px;
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .brand-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
         }
 
         header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 800;
             letter-spacing: -0.5px;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #fff 0%, #b3b9c5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+            color: #fff;
         }
 
         header p {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            max-width: 280px;
+            max-width: 260px;
             margin: 0 auto;
-            line-height: 1.4;
+            line-height: 1.45;
         }
 
-        /* Container that holds the timer and multiple ad banners */
-        .content-container {
+        /* ── Layout ────────────────────── */
+        .page {
             width: 100%;
-            max-width: 650px;
+            max-width: 480px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 16px;
             align-items: center;
-            animation: fadeIn 0.8s ease-out;
             z-index: 1;
-            padding-bottom: 40px;
         }
 
-        /* ── Timer Section (Glassmorphism Card) ─────────────────────── */
-        .timer-card {
+        /* ── Glass Card Base ────────────────────── */
+        .glass {
             width: 100%;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--surface-border);
-            border-radius: 24px;
-            padding: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* ── Timer Card ────────────────────── */
+        .timer-card {
+            padding: 24px 20px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             position: relative;
             overflow: hidden;
-            margin-bottom: 8px;
-            /* Extra space before banners */
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
         }
 
-        /* Timer Card internal glowing background */
         .timer-card::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, var(--primary-glow), transparent 60%);
-            opacity: 0.1;
-            animation: pulseBg 4s infinite alternate ease-in-out;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(108, 159, 255, 0.05) 0%, rgba(167, 139, 250, 0.03) 100%);
             pointer-events: none;
         }
 
         .countdown-wrap {
             position: relative;
-            width: 130px;
-            height: 130px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100px;
+            height: 100px;
             flex-shrink: 0;
-            filter: drop-shadow(0 0 16px rgba(77, 166, 255, 0.25));
-            transition: filter 0.4s ease;
+            filter: drop-shadow(0 0 12px var(--primary-glow));
+            transition: filter 0.5s ease;
         }
 
         .countdown-wrap svg {
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
             transform: rotate(-90deg);
             width: 100%;
             height: 100%;
-            overflow: visible;
         }
 
         circle.track {
             fill: none;
-            stroke: rgba(255, 255, 255, 0.05);
-            stroke-width: 6;
+            stroke: rgba(255, 255, 255, 0.04);
+            stroke-width: 5;
         }
 
         circle.fill {
             fill: none;
-            stroke: var(--primary);
-            stroke-width: 6;
+            stroke: url(#gradientRing);
+            stroke-width: 5;
             stroke-linecap: round;
-            stroke-dasharray: 345.5;
-            /* Ricalcolato nel JS */
+            stroke-dasharray: 264;
             stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+            transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
         }
 
         .countdown-num {
@@ -191,98 +240,201 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
             font-variant-numeric: tabular-nums;
         }
 
-        .timer-texts {
-            text-align: center;
+        .timer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
             z-index: 1;
-            /* Sopra il background glowing */
+            min-width: 0;
         }
 
-        .timer-texts strong {
-            display: block;
-            font-size: 1.15rem;
+        .timer-info strong {
+            font-size: 1rem;
+            font-weight: 700;
             color: #fff;
-            margin-bottom: 6px;
-            font-weight: 600;
+        }
+
+        .timer-info strong span {
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
         }
 
         #status {
-            font-size: 0.95rem;
-            color: var(--primary);
+            font-size: 0.8rem;
+            color: var(--text-muted);
             font-weight: 500;
             transition: color 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        /* ── Banners ────────────────────────── */
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* ── Progress Bar (sotto il timer card) ─── */
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+            margin-top: -1px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary-deep), var(--accent));
+            border-radius: 0 0 20px 20px;
+            transition: width 1s linear;
+        }
+
+        /* ── Section Divider ────────────────────── */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 0 4px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        .section-label span {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .section-label::before,
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+
+        /* ── Ad Slots ────────────────────── */
         .ad-slot {
             width: 100%;
             background: var(--surface);
-            border: 1px solid var(--surface-border);
+            border: 1px solid var(--border);
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .ad-slot:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
-            border-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
         }
 
         .ad-slot::before {
-            content: 'Pubblicità (supportaci)';
+            content: 'Supportaci ❤️';
             position: absolute;
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.12);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: -1;
-            text-align: center;
-            width: 100%;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            z-index: 0;
         }
 
-        .ad-slot-native {
-            min-height: 60px;
-            max-width: 100%;
+        .ad-native {
+            min-height: 55px;
         }
 
-        .ad-slot-square {
+        .ad-square {
             min-height: 250px;
             max-width: 300px;
         }
 
-        .banners-grid {
+        .banners-col {
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 14px;
             align-items: center;
-            justify-content: center;
             width: 100%;
         }
 
-        /* ── Fullscreen Success Overlay ────────────────────────────── */
+        .banners-row {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        /* Animation stagger for ad slots */
+        .ad-slot:nth-child(1) {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+        }
+
+        .ad-slot:nth-child(2) {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+        }
+
+        .ad-slot:nth-child(3) {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+        }
+
+        .ad-slot:nth-child(4) {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
+        }
+
+        /* ── Disclaimer ────────────────────── */
+        .disclaimer {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.15);
+            text-align: center;
+            max-width: 300px;
+            line-height: 1.5;
+            margin-top: 8px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+        }
+
+        /* ── Success Overlay ────────────────────── */
         #success-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(11, 12, 16, 0.95);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            inset: 0;
+            background: rgba(7, 8, 13, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -290,7 +442,7 @@
             justify-content: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.6s ease;
         }
 
         #success-overlay.active {
@@ -298,63 +450,82 @@
             pointer-events: all;
         }
 
-        .success-icon {
-            width: 100px;
-            height: 100px;
-            background: rgba(0, 230, 118, 0.1);
+        .success-badge {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(52, 211, 153, 0.05));
+            border: 2px solid rgba(52, 211, 153, 0.3);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 50px;
-            color: var(--success);
-            box-shadow: 0 0 40px var(--success-glow);
             margin-bottom: 24px;
             transform: scale(0.5);
             opacity: 0;
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease;
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
         }
 
-        #success-overlay.active .success-icon {
+        .success-badge svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--success);
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .success-badge svg path {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            transition: stroke-dashoffset 0.6s ease 0.3s;
+        }
+
+        #success-overlay.active .success-badge {
             transform: scale(1);
             opacity: 1;
+            box-shadow: 0 0 50px var(--success-glow);
+        }
+
+        #success-overlay.active .success-badge svg path {
+            stroke-dashoffset: 0;
         }
 
         .success-title {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.6rem;
+            font-weight: 800;
             color: #fff;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             text-align: center;
             padding: 0 20px;
             transform: translateY(20px);
             opacity: 0;
-            transition: transform 0.5s ease 0.2s, opacity 0.5s ease 0.2s;
+            transition: transform 0.5s ease 0.25s, opacity 0.5s ease 0.25s;
         }
 
-        .success-subtitle {
-            font-size: 1.05rem;
+        .success-sub {
+            font-size: 0.9rem;
             color: var(--text-muted);
             text-align: center;
-            padding: 0 20px;
-            max-width: 320px;
+            padding: 0 30px;
+            max-width: 300px;
             line-height: 1.5;
             transform: translateY(20px);
             opacity: 0;
-            transition: transform 0.5s ease 0.3s, opacity 0.5s ease 0.3s;
+            transition: transform 0.5s ease 0.35s, opacity 0.5s ease 0.35s;
         }
 
         #success-overlay.active .success-title,
-        #success-overlay.active .success-subtitle {
+        #success-overlay.active .success-sub {
             transform: translateY(0);
             opacity: 1;
         }
 
-        /* ── Animations ────────────────────────────── */
-        @keyframes fadeInDown {
+        /* ── Animations ────────────────────── */
+        @keyframes slideDown {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-15px);
             }
 
             to {
@@ -363,7 +534,7 @@
             }
         }
 
-        @keyframes fadeIn {
+        @keyframes slideUp {
             from {
                 opacity: 0;
                 transform: translateY(15px);
@@ -375,61 +546,28 @@
             }
         }
 
-        @keyframes pulseBg {
-            from {
-                transform: scale(1);
-                opacity: 0.05;
-            }
-
-            to {
-                transform: scale(1.15);
-                opacity: 0.15;
-            }
-        }
-
-        /* Responsive Breakpoints */
+        /* ── Desktop ────────────────────── */
         @media (min-width: 600px) {
-            .content-container {
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-                align-items: flex-start;
+            .page {
+                max-width: 560px;
             }
 
             .timer-card {
-                flex: 1 1 100%;
-                /* Usa tutta la larghezza in alto */
-                flex-direction: row;
-                justify-content: center;
-                max-width: 550px;
-                margin: 0 auto 20px;
-                padding: 30px 40px;
-                gap: 40px;
-            }
-
-            .timer-texts {
-                text-align: left;
+                padding: 28px 32px;
+                gap: 28px;
             }
 
             .countdown-wrap {
-                width: 140px;
-                height: 140px;
+                width: 110px;
+                height: 110px;
             }
 
-            .banners-grid {
-                flex-direction: row;
-                flex-wrap: wrap;
-                align-items: center;
-                justify-content: center;
-                gap: 24px;
+            .countdown-num {
+                font-size: 2.2rem;
             }
 
-            .ad-slot-native {
-                flex: 1 1 100%;
-            }
-
-            .ad-slot-square {
-                flex: 0 0 auto;
+            .banners-row {
+                flex-wrap: nowrap;
             }
         }
     </style>
@@ -465,25 +603,17 @@
             };
 
             // ── 2. Blocca navigazione via location ──
-            // Salva il riferimento originale
-            const origLocation = location.href;
-
-            // Override location.assign e location.replace
             const origAssign = location.assign.bind(location);
             const origReplace = location.replace.bind(location);
 
             Object.defineProperty(window, 'location', {
                 configurable: false,
-                get: function () {
-                    return document.location;
-                },
+                get: function () { return document.location; },
                 set: function (val) {
                     console.warn('[AdShield] Bloccato window.location =', val);
-                    // Non esegue il redirect
                 }
             });
 
-            // Override metodi di navigazione su document.location
             try {
                 const loc = document.location;
                 loc.assign = function (url) {
@@ -495,7 +625,6 @@
                     else { console.warn('[AdShield] Bloccato location.replace →', url); }
                 };
 
-                // Protegge location.href dal setter
                 try {
                     const locationProto = Object.getPrototypeOf(loc);
                     const hrefDescriptor = Object.getOwnPropertyDescriptor(locationProto, 'href');
@@ -511,24 +640,21 @@
                             enumerable: true
                         });
                     }
-                } catch (e) { /* Alcuni browser non permettono l'override */ }
+                } catch (e) { }
             } catch (e) { console.log('[AdShield] Partial location protection:', e); }
 
-            // ── 3. Blocca click su link esterni (click hijacking) ──
+            // ── 3. Blocca click su link esterni ──
             document.addEventListener('click', function (e) {
                 const anchor = e.target.closest('a');
-                if (anchor && anchor.href) {
-                    if (!isAllowed(anchor.href)) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.stopImmediatePropagation();
-                        console.warn('[AdShield] Bloccato click su link esterno →', anchor.href);
-                        return false;
-                    }
+                if (anchor && anchor.href && !isAllowed(anchor.href)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.warn('[AdShield] Bloccato click →', anchor.href);
+                    return false;
                 }
-            }, true); // useCapture = true → intercetta prima di tutti gli altri handler
+            }, true);
 
-            // Blocca anche mousedown/pointerdown per evitare bypass
             ['mousedown', 'pointerdown', 'touchstart'].forEach(function (evt) {
                 document.addEventListener(evt, function (e) {
                     const anchor = e.target.closest('a');
@@ -541,13 +667,13 @@
                 }, true);
             });
 
-            // ── 4. Blocca form submit verso domini esterni ──
+            // ── 4. Blocca form submit esterni ──
             document.addEventListener('submit', function (e) {
                 const form = e.target;
                 if (form && form.action && !isAllowed(form.action)) {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.warn('[AdShield] Bloccato submit form →', form.action);
+                    console.warn('[AdShield] Bloccato form →', form.action);
                 }
             }, true);
 
@@ -557,52 +683,40 @@
                     m.addedNodes.forEach(function (node) {
                         if (node.nodeType !== 1) return;
 
-                        // Sandbox tutti gli iframe inseriti dagli ad
                         if (node.tagName === 'IFRAME') {
                             if (!node.hasAttribute('sandbox') || !node.sandbox.contains('allow-scripts')) {
                                 node.setAttribute('sandbox', 'allow-scripts allow-same-origin');
                             }
-                            // Rimuove allow-top-navigation se presente
                             if (node.sandbox.contains('allow-top-navigation')) {
                                 const val = node.getAttribute('sandbox').replace(/allow-top-navigation[^\s]*/g, '').trim();
                                 node.setAttribute('sandbox', val || 'allow-scripts allow-same-origin');
                             }
-                            // Blocca l'iframe se prova a navigare il parent
-                            if (!node.hasAttribute('allow')) {
-                                node.setAttribute('allow', '');
-                            }
                         }
 
-                        // Rimuovi meta refresh iniettate
                         if (node.tagName === 'META') {
                             const equiv = (node.getAttribute('http-equiv') || '').toLowerCase();
                             if (equiv === 'refresh') {
                                 node.remove();
-                                console.warn('[AdShield] Rimossa meta refresh iniettata');
+                                console.warn('[AdShield] Rimossa meta refresh');
                             }
                         }
 
-                        // Rimuovi anchor invisibili / nascosti usati per redirect
                         if (node.tagName === 'A') {
                             const style = window.getComputedStyle(node);
-                            const isHidden = style.display === 'none' ||
-                                style.visibility === 'hidden' ||
-                                style.opacity === '0' ||
-                                (node.offsetWidth <= 1 && node.offsetHeight <= 1);
+                            const isHidden = style.display === 'none' || style.visibility === 'hidden' ||
+                                style.opacity === '0' || (node.offsetWidth <= 1 && node.offsetHeight <= 1);
                             if (isHidden && node.href && !isAllowed(node.href)) {
                                 node.remove();
                                 console.warn('[AdShield] Rimosso anchor nascosto →', node.href);
                             }
                         }
 
-                        // Cerca anche in nodi figli
                         if (node.querySelectorAll) {
                             node.querySelectorAll('iframe').forEach(function (iframe) {
                                 iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
                             });
                             node.querySelectorAll('meta[http-equiv="refresh"]').forEach(function (meta) {
                                 meta.remove();
-                                console.warn('[AdShield] Rimossa meta refresh iniettata (child)');
                             });
                         }
                     });
@@ -610,25 +724,22 @@
             });
             observer.observe(document.documentElement, { childList: true, subtree: true });
 
-            // ── 6. Blocca beforeunload / unload navigation forzata ──
+            // ── 6. Blocca beforeunload ──
             window.addEventListener('beforeunload', function (e) {
-                // Non possiamo davvero bloccare la navigazione qui, ma logghiamo
                 console.warn('[AdShield] beforeunload intercettato');
             });
 
-            // ── 7. Blocca document.write che potrebbe iniettare redirect ──
+            // ── 7. Sanitize document.write ──
             const origWrite = document.write.bind(document);
             const origWriteln = document.writeln.bind(document);
 
             function sanitizeWrite(html) {
-                // Blocca meta refresh
                 if (/<meta[^>]*http-equiv\s*=\s*["']?refresh/i.test(html)) {
-                    console.warn('[AdShield] Bloccato document.write con meta refresh');
+                    console.warn('[AdShield] Bloccato document.write meta refresh');
                     return html.replace(/<meta[^>]*http-equiv\s*=\s*["']?refresh[^>]*>/gi, '');
                 }
-                // Blocca script con redirect espliciti (location.href, window.location, ecc.)
                 if (/(?:window\.)?location\s*[=.]/i.test(html) && /https?:\/\//i.test(html)) {
-                    console.warn('[AdShield] Bloccato document.write con possibile redirect');
+                    console.warn('[AdShield] Bloccato document.write redirect');
                     return '';
                 }
                 return html;
@@ -642,39 +753,98 @@
     </script>
     <!-- ═══════ FINE ANTI-REDIRECT SHIELD ═══════ -->
 
+    <!-- SVG Gradient Definition (hidden) -->
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <linearGradient id="gradientRing" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--primary)" />
+                <stop offset="100%" stop-color="var(--accent)" />
+            </linearGradient>
+        </defs>
+    </svg>
+
     <header>
-        <div class="icon-wrapper">🚌</div>
+        <div class="brand">
+            <div class="brand-icon">🚌</div>
+            <div class="brand-name">BusBot</div>
+        </div>
         <h1>Sblocca gli orari</h1>
-        <p>Attendi il completamento per sbloccare l'orario richiesto</p>
+        <p>Attendi il completamento per sbloccare gli orari richiesti</p>
     </header>
 
-    <div class="content-container">
+    <div class="page">
 
-        <!-- Timer Card -->
-        <div class="timer-card">
+        <!-- ── Timer Card ── -->
+        <div class="timer-card glass">
             <div class="countdown-wrap">
-                <svg width="100%" height="100%" viewBox="0 0 150 150">
-                    <circle class="track" cx="75" cy="75" r="65" />
-                    <circle class="fill" cx="75" cy="75" r="65" id="ring" />
+                <svg width="100%" height="100%" viewBox="0 0 120 120">
+                    <circle class="track" cx="60" cy="60" r="52" />
+                    <circle class="fill" cx="60" cy="60" r="52" id="ring" />
                 </svg>
                 <div class="countdown-num" id="num">15</div>
             </div>
-            <div class="timer-texts">
+            <div class="timer-info">
                 <strong>Attendi <span id="sec-text">15</span> secondi</strong>
-                <div id="status">Caricamento in corso...</div>
+                <div id="status">
+                    <div class="pulse-dot"></div> In attesa...
+                </div>
             </div>
         </div>
+        <div class="progress-bar glass">
+            <div class="progress-fill" id="progress"></div>
+        </div>
 
-        <div class="banners-grid">
-            <!-- Adsterra Native Banner (top) -->
-            <div class="ad-slot ad-slot-native" id="banner-top">
+        <!-- ── Sezione Banner ── -->
+        <div class="section-label"><span>Contenuti sponsorizzati</span></div>
+
+        <div class="banners-col">
+
+            <!-- Native Banner (top, full width) -->
+            <div class="ad-slot ad-native" id="banner-native-top">
                 <script async="async" data-cfasync="false"
                     src="https://pl28838773.effectivegatecpm.com/af06821f57a4e1f9cc22dd5f68aa7eab/invoke.js"></script>
                 <div id="container-af06821f57a4e1f9cc22dd5f68aa7eab"></div>
             </div>
 
-            <!-- Adsterra Banner 300x250 (1) -->
-            <div class="ad-slot ad-slot-square">
+            <!-- 2x Banner 300x250 affiancati -->
+            <div class="banners-row">
+                <div class="ad-slot ad-square">
+                    <script>
+                        atOptions = {
+                            'key': '953b3820f45b8c35b6e19403dc28ad24',
+                            'format': 'iframe',
+                            'height': 250,
+                            'width': 300,
+                            'params': {}
+                        };
+                    </script>
+                    <script
+                        src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
+                </div>
+                <div class="ad-slot ad-square">
+                    <script>
+                        atOptions = {
+                            'key': '953b3820f45b8c35b6e19403dc28ad24',
+                            'format': 'iframe',
+                            'height': 250,
+                            'width': 300,
+                            'params': {}
+                        };
+                    </script>
+                    <script
+                        src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
+                </div>
+            </div>
+
+            <!-- Native Banner (bottom, full width) -->
+            <div class="ad-slot ad-native" id="banner-native-bottom">
+                <script async="async" data-cfasync="false"
+                    src="https://pl28838773.effectivegatecpm.com/af06821f57a4e1f9cc22dd5f68aa7eab/invoke.js"></script>
+                <div id="container-af06821f57a4e1f9cc22dd5f68aa7eab"></div>
+            </div>
+
+            <!-- Additional 300x250 banner -->
+            <div class="ad-slot ad-square">
                 <script>
                     atOptions = {
                         'key': '953b3820f45b8c35b6e19403dc28ad24',
@@ -687,31 +857,33 @@
                 <script src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
             </div>
 
-            <!-- Adsterra Banner 300x250 (2) -->
-            <div class="ad-slot ad-slot-square">
-                <script>
-                    atOptions = {
-                        'key': '953b3820f45b8c35b6e19403dc28ad24',
-                        'format': 'iframe',
-                        'height': 250,
-                        'width': 300,
-                        'params': {}
-                    };
-                </script>
-                <script src="https://www.highperformanceformat.com/953b3820f45b8c35b6e19403dc28ad24/invoke.js"></script>
+            <!-- Final native banner -->
+            <div class="ad-slot ad-native" id="banner-native-final">
+                <script async="async" data-cfasync="false"
+                    src="https://pl28838773.effectivegatecpm.com/af06821f57a4e1f9cc22dd5f68aa7eab/invoke.js"></script>
+                <div id="container-af06821f57a4e1f9cc22dd5f68aa7eab"></div>
             </div>
+
+        </div>
+
+        <div class="disclaimer">
+            Le pubblicità ci aiutano a mantenere il servizio gratuito per tutti gli utenti. Grazie per il supporto! ❤️
         </div>
 
     </div>
 
-    <!-- Fullscreen Overlay for Success -->
+    <!-- ── Success Overlay ── -->
     <div id="success-overlay">
-        <div class="success-icon">✓</div>
-        <div class="success-title">Orari Sbloccati!</div>
-        <div class="success-subtitle">Puoi ora tornare su Telegram per visualizzare gli orari del tuo bus. Chiusura in
-            corso...</div>
+        <div class="success-badge">
+            <svg viewBox="0 0 24 24">
+                <path d="M4 12l6 6L20 6" />
+            </svg>
+        </div>
+        <div class="success-title">Orari Sbloccati! 🎉</div>
+        <div class="success-sub">Torna su Telegram per visualizzare gli orari. Chiusura automatica in corso…</div>
     </div>
 
+    <!-- ── App Logic ── -->
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
@@ -725,11 +897,10 @@
         const status = document.getElementById('status');
         const overlay = document.getElementById('success-overlay');
         const countdownWrap = document.querySelector('.countdown-wrap');
+        const progressFill = document.getElementById('progress');
 
-        // Calcolo della circonferenza in base al raggio nell'SVG (r="65")
-        const r = 65;
+        const r = 52; // radius in SVG
         const C = 2 * Math.PI * r;
-
         ring.style.strokeDasharray = C;
         ring.style.strokeDashoffset = 0;
 
@@ -740,16 +911,17 @@
 
             const pct = remaining / TOTAL;
             ring.style.strokeDashoffset = C * (1 - pct);
+            progressFill.style.width = (pct * 100) + '%';
 
-            // Colori di transizione timer (gradienti simulati)
+            // Color transition
             if (pct <= 0.33) {
                 ring.style.stroke = 'var(--danger)';
-                status.style.color = 'var(--danger)';
-                countdownWrap.style.filter = 'drop-shadow(0 0 16px rgba(255, 82, 82, 0.4))';
+                status.innerHTML = '<div class="pulse-dot" style="background:var(--danger)"></div> Quasi completato…';
+                countdownWrap.style.filter = 'drop-shadow(0 0 14px rgba(248, 113, 113, 0.5))';
             } else if (pct <= 0.66) {
                 ring.style.stroke = 'var(--warning)';
-                status.style.color = 'var(--warning)';
-                countdownWrap.style.filter = 'drop-shadow(0 0 16px rgba(255, 145, 0, 0.4))';
+                status.innerHTML = '<div class="pulse-dot" style="background:var(--warning)"></div> Ancora pochi secondi…';
+                countdownWrap.style.filter = 'drop-shadow(0 0 14px rgba(251, 191, 36, 0.5))';
             }
 
             if (remaining <= 0) {
@@ -759,27 +931,22 @@
         }, 1000);
 
         function unlock() {
-            // Blocca la scrollbar per evitare bypass (pointer-events bloccato dall'overlay)
             document.body.style.overflow = 'hidden';
-
-            // Mostra l'overlay del successo
             overlay.classList.add('active');
 
-            // Notifica Telegram WebApp
             try {
                 Telegram.WebApp.sendData('ad_reward');
             } catch (e) {
-                console.log('Error sending ad_reward payload via inline', e);
+                console.log('Error sending ad_reward:', e);
             }
 
-            // Attende un paio di secondi per mostrare l'animazione dell'overlay completo
             setTimeout(() => {
                 try {
                     Telegram.WebApp.close();
                 } catch (e) {
-                    window.close(); // Fallback se non è nell'ambiente Telegram
+                    window.close();
                 }
-            }, 1800);
+            }, 2000);
         }
     </script>
 </body>
