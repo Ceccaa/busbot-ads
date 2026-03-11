@@ -11,6 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+    <!-- CSP: blocca navigazione verso domini non autorizzati -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://telegram.org https://*.telegram.org;
+                   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://*.telegram.org https://*.effectivegatecpm.com https://*.highperformanceformat.com https://*.com;
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src * data: blob:;
+                   frame-src *;
+                   connect-src *;
+                   form-action 'none';">
+
     <style>
         :root {
             --bg-color: #0b0c10;
@@ -426,6 +436,211 @@
 </head>
 
 <body>
+
+    <!-- ═══════ ANTI-REDIRECT SHIELD — deve caricare PRIMA di ogni ad script ═══════ -->
+    <script>
+        (function () {
+            'use strict';
+
+            const ALLOWED_HOSTS = [
+                location.hostname,
+                'telegram.org',
+                't.me',
+                'web.telegram.org'
+            ];
+
+            function isAllowed(url) {
+                try {
+                    const u = new URL(url, location.href);
+                    return ALLOWED_HOSTS.some(h => u.hostname === h || u.hostname.endsWith('.' + h));
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            // ── 1. Blocca window.open (popunder / popup) ──
+            window.open = function (url) {
+                console.warn('[AdShield] Bloccato window.open →', url);
+                return null;
+            };
+
+            // ── 2. Blocca navigazione via location ──
+            // Salva il riferimento originale
+            const origLocation = location.href;
+
+            // Override location.assign e location.replace
+            const origAssign = location.assign.bind(location);
+            const origReplace = location.replace.bind(location);
+
+            Object.defineProperty(window, 'location', {
+                configurable: false,
+                get: function () {
+                    return document.location;
+                },
+                set: function (val) {
+                    console.warn('[AdShield] Bloccato window.location =', val);
+                    // Non esegue il redirect
+                }
+            });
+
+            // Override metodi di navigazione su document.location
+            try {
+                const loc = document.location;
+                loc.assign = function (url) {
+                    if (isAllowed(url)) { origAssign(url); }
+                    else { console.warn('[AdShield] Bloccato location.assign →', url); }
+                };
+                loc.replace = function (url) {
+                    if (isAllowed(url)) { origReplace(url); }
+                    else { console.warn('[AdShield] Bloccato location.replace →', url); }
+                };
+
+                // Protegge location.href dal setter
+                try {
+                    const locationProto = Object.getPrototypeOf(loc);
+                    const hrefDescriptor = Object.getOwnPropertyDescriptor(locationProto, 'href');
+                    if (hrefDescriptor && hrefDescriptor.set) {
+                        const origHrefSet = hrefDescriptor.set;
+                        Object.defineProperty(locationProto, 'href', {
+                            get: hrefDescriptor.get,
+                            set: function (val) {
+                                if (isAllowed(val)) { origHrefSet.call(this, val); }
+                                else { console.warn('[AdShield] Bloccato location.href =', val); }
+                            },
+                            configurable: true,
+                            enumerable: true
+                        });
+                    }
+                } catch (e) { /* Alcuni browser non permettono l'override */ }
+            } catch (e) { console.log('[AdShield] Partial location protection:', e); }
+
+            // ── 3. Blocca click su link esterni (click hijacking) ──
+            document.addEventListener('click', function (e) {
+                const anchor = e.target.closest('a');
+                if (anchor && anchor.href) {
+                    if (!isAllowed(anchor.href)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        console.warn('[AdShield] Bloccato click su link esterno →', anchor.href);
+                        return false;
+                    }
+                }
+            }, true); // useCapture = true → intercetta prima di tutti gli altri handler
+
+            // Blocca anche mousedown/pointerdown per evitare bypass
+            ['mousedown', 'pointerdown', 'touchstart'].forEach(function (evt) {
+                document.addEventListener(evt, function (e) {
+                    const anchor = e.target.closest('a');
+                    if (anchor && anchor.href && !isAllowed(anchor.href)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        return false;
+                    }
+                }, true);
+            });
+
+            // ── 4. Blocca form submit verso domini esterni ──
+            document.addEventListener('submit', function (e) {
+                const form = e.target;
+                if (form && form.action && !isAllowed(form.action)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.warn('[AdShield] Bloccato submit form →', form.action);
+                }
+            }, true);
+
+            // ── 5. MutationObserver: sandbox iframe + rimuovi meta refresh ──
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (m) {
+                    m.addedNodes.forEach(function (node) {
+                        if (node.nodeType !== 1) return;
+
+                        // Sandbox tutti gli iframe inseriti dagli ad
+                        if (node.tagName === 'IFRAME') {
+                            if (!node.hasAttribute('sandbox') || !node.sandbox.contains('allow-scripts')) {
+                                node.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+                            }
+                            // Rimuove allow-top-navigation se presente
+                            if (node.sandbox.contains('allow-top-navigation')) {
+                                const val = node.getAttribute('sandbox').replace(/allow-top-navigation[^\s]*/g, '').trim();
+                                node.setAttribute('sandbox', val || 'allow-scripts allow-same-origin');
+                            }
+                            // Blocca l'iframe se prova a navigare il parent
+                            if (!node.hasAttribute('allow')) {
+                                node.setAttribute('allow', '');
+                            }
+                        }
+
+                        // Rimuovi meta refresh iniettate
+                        if (node.tagName === 'META') {
+                            const equiv = (node.getAttribute('http-equiv') || '').toLowerCase();
+                            if (equiv === 'refresh') {
+                                node.remove();
+                                console.warn('[AdShield] Rimossa meta refresh iniettata');
+                            }
+                        }
+
+                        // Rimuovi anchor invisibili / nascosti usati per redirect
+                        if (node.tagName === 'A') {
+                            const style = window.getComputedStyle(node);
+                            const isHidden = style.display === 'none' ||
+                                style.visibility === 'hidden' ||
+                                style.opacity === '0' ||
+                                (node.offsetWidth <= 1 && node.offsetHeight <= 1);
+                            if (isHidden && node.href && !isAllowed(node.href)) {
+                                node.remove();
+                                console.warn('[AdShield] Rimosso anchor nascosto →', node.href);
+                            }
+                        }
+
+                        // Cerca anche in nodi figli
+                        if (node.querySelectorAll) {
+                            node.querySelectorAll('iframe').forEach(function (iframe) {
+                                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+                            });
+                            node.querySelectorAll('meta[http-equiv="refresh"]').forEach(function (meta) {
+                                meta.remove();
+                                console.warn('[AdShield] Rimossa meta refresh iniettata (child)');
+                            });
+                        }
+                    });
+                });
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+
+            // ── 6. Blocca beforeunload / unload navigation forzata ──
+            window.addEventListener('beforeunload', function (e) {
+                // Non possiamo davvero bloccare la navigazione qui, ma logghiamo
+                console.warn('[AdShield] beforeunload intercettato');
+            });
+
+            // ── 7. Blocca document.write che potrebbe iniettare redirect ──
+            const origWrite = document.write.bind(document);
+            const origWriteln = document.writeln.bind(document);
+
+            function sanitizeWrite(html) {
+                // Blocca meta refresh
+                if (/<meta[^>]*http-equiv\s*=\s*["']?refresh/i.test(html)) {
+                    console.warn('[AdShield] Bloccato document.write con meta refresh');
+                    return html.replace(/<meta[^>]*http-equiv\s*=\s*["']?refresh[^>]*>/gi, '');
+                }
+                // Blocca script con redirect espliciti (location.href, window.location, ecc.)
+                if (/(?:window\.)?location\s*[=.]/i.test(html) && /https?:\/\//i.test(html)) {
+                    console.warn('[AdShield] Bloccato document.write con possibile redirect');
+                    return '';
+                }
+                return html;
+            }
+
+            document.write = function (html) { origWrite(sanitizeWrite(html)); };
+            document.writeln = function (html) { origWriteln(sanitizeWrite(html)); };
+
+            console.log('[AdShield] ✅ Protezione anti-redirect attiva');
+        })();
+    </script>
+    <!-- ═══════ FINE ANTI-REDIRECT SHIELD ═══════ -->
 
     <header>
         <div class="icon-wrapper">🚌</div>
